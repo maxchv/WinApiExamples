@@ -1,0 +1,15 @@
+*.lastbuildstate
+*.vcxproj.filters
+*.tlog
+*.log
+*.pch
+*.obj
+*.idb
+*.pdb
+*.filters
+*.exe
+*.ilk
+*.rar
+*.ipch
+*.bin
+*.opensdf
