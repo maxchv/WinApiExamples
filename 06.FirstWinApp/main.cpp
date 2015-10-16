@@ -81,21 +81,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 LPARAM CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
-    HDC hDC; // Дескриптор ориентации текста на экране
-    PAINTSTRUCT ps; // структура определяющая клиентскую область (размеры, цвет и т.д.)
-    RECT rect; // размер клиентской области
-    COLORREF colorText = RGB(255, 0, 0); // цвет текста
+    
     switch (uMessage)
     {
-    case WM_CREATE:
-        break;
-    case WM_PAINT:
-        hDC = BeginPaint(hWnd, &ps);
-        GetClientRect(hWnd, &rect);
-        SetTextColor(hDC, colorText);
-        DrawText(hDC, TEXT("Text"), -1, &rect, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
-        EndPaint(hWnd, &ps);
-        break;
     case WM_DESTROY:    // Сообщение о завершении программы
         PostQuitMessage(0); // Посылка сообщения WM_QUIT
         break;
