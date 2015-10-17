@@ -117,6 +117,8 @@ enum class WinType
     Static,
     StaticBitmap,
     Button,
+    CheckBox,
+    RadioButton,
     Edit,
     ComboBox
 };
@@ -146,6 +148,7 @@ HBITMAP GetBitmap(HWND hWndParent)
 
 // https://en.wikibooks.org/wiki/Windows_Programming/User_Interface_Controls
 #define ID_MYBUTTON 1
+#define ID_MYCHECHBOX 2
 
 HWND NewWindow(WinType type, POINT p, HWND hWnd)
 {
@@ -190,6 +193,12 @@ HWND NewWindow(WinType type, POINT p, HWND hWnd)
         SendMessage(h, WM_SETTEXT, NULL, (LPARAM) TEXT("It is button"));
         // alternative change text
         SetWindowText(h, TEXT("Btn"));
+        break;
+    case WinType::CheckBox:
+        h = CreateWindow(TEXT("BUTTON"), TEXT("Check box"),
+            WS_CHILD | WS_VISIBLE | BS_CHECKBOX,
+            p.x, p.y, 100, 30, hWnd, (HMENU)ID_MYCHECHBOX, hInst, NULL);
+
         break;
     case WinType::Edit:
         h = CreateWindow(TEXT("EDIT"),
@@ -262,6 +271,7 @@ HWND hStat = NULL;
 HWND hStatBitmap = NULL;
 HWND hEdit = NULL;
 HWND hButton = NULL;
+HWND hCheckBox = NULL;
 HWND hCombo = NULL;
 bool is_creating = false;
 WinType type_of_creation;
@@ -289,6 +299,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 break;
             case WinType::Button:
                 hButton = NewWindow(WinType::Button, p, hWnd);
+                break;
+            case WinType::CheckBox:
+                hCheckBox = NewWindow(WinType::CheckBox, p, hWnd);
                 break;
             case WinType::Edit:
                 hEdit = NewWindow(WinType::Edit, p, hWnd);
@@ -333,6 +346,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             is_creating = true;     
             type_of_creation = WinType::Button;
             //MessageBox(hWnd, TEXT("Create Button"), TEXT(""), 0);
+            break;
+        case ID_CHECKBOX:
+            is_creating = true;     
+            type_of_creation = WinType::CheckBox;
+            //MessageBox(hWnd, TEXT("Create Button"), TEXT(""), 0);
+            break;
+        case ID_MYCHECHBOX:
+            {
+                bool is_check = IsDlgButtonChecked(hWnd, ID_MYCHECHBOX);
+                if(is_check)
+                {
+                    CheckDlgButton(hWnd, ID_MYCHECHBOX, BST_UNCHECKED);                    
+                }
+                else 
+                {
+                    CheckDlgButton(hWnd, ID_MYCHECHBOX, BST_CHECKED);
+                }                
+            }
             break;
         case ID_MYBUTTON:
             MessageBox(hWnd, TEXT("Button Pushed"), TEXT(""), 0);
