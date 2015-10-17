@@ -126,29 +126,32 @@ enum class WinType
 
 HBITMAP GetBitmap(HWND hWndParent)
 {
-	HBITMAP hBitmap = NULL;
-	OPENFILENAME openfilename = { 0 };
-	TCHAR szFileName[_MAX_PATH] = TEXT("");
-	openfilename.lStructSize = sizeof(OPENFILENAME);
-	openfilename.hwndOwner = hWndParent;
-	openfilename.lpstrFile = szFileName;
-	openfilename.lpstrFilter = TEXT("Bitmap images (*.bmp)\0*.bmp\0\0");
-	openfilename.lpstrDefExt = TEXT("bmp");
-	openfilename.nMaxFile = _MAX_FNAME;
-	openfilename.lpstrFileTitle = TEXT("");
-	openfilename.Flags = OFN_FILEMUSTEXIST;
-	if (GetOpenFileName(&openfilename))
-	{	
-		hBitmap = (HBITMAP) LoadImage(NULL, szFileName, IMAGE_BITMAP,
-					0, 0, LR_LOADFROMFILE);
-	}
-	
-	return hBitmap;
+    HBITMAP hBitmap = NULL;
+    OPENFILENAME openfilename = { 0 };
+    TCHAR szFileName[_MAX_PATH] = TEXT("");
+    openfilename.lStructSize = sizeof(OPENFILENAME);
+    openfilename.hwndOwner = hWndParent;
+    openfilename.lpstrFile = szFileName;
+    openfilename.lpstrFilter = TEXT("Bitmap images (*.bmp)\0*.bmp\0\0");
+    openfilename.lpstrDefExt = TEXT("bmp");
+    openfilename.nMaxFile = _MAX_FNAME;
+    openfilename.lpstrFileTitle = TEXT("");
+    openfilename.Flags = OFN_FILEMUSTEXIST;
+    if (GetOpenFileName(&openfilename))
+    {	
+        hBitmap = (HBITMAP) LoadImage(NULL, szFileName, IMAGE_BITMAP,
+            0, 0, LR_LOADFROMFILE);
+    }
+
+    return hBitmap;
 }
 
 // https://en.wikibooks.org/wiki/Windows_Programming/User_Interface_Controls
 #define ID_MYBUTTON 1
 #define ID_MYCHECHBOX 2
+#define ID_BLUE 3
+#define ID_YELLOW 4
+#define ID_ORANGE 5
 
 HWND NewWindow(WinType type, POINT p, HWND hWnd)
 {
@@ -171,18 +174,18 @@ HWND NewWindow(WinType type, POINT p, HWND hWnd)
         SetWindowText(h, TEXT("It is simple static"));
         break;
     case WinType::StaticBitmap:
-	{
-		// http://zetcode.com/gui/winapi/controls/
-		HBITMAP hBitmap = GetBitmap(hWnd);
-		if (hBitmap)
-		{			
-			h = CreateWindow(TEXT("STATIC"), TEXT(""),
-				WS_CHILD | WS_VISIBLE | WS_BORDER | SS_BITMAP,
-				p.x, p.y, 300, 300, hWnd, NULL, hInst, NULL);
-			SendMessage(h, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
-		}
-	}		
-		break;
+        {
+            // http://zetcode.com/gui/winapi/controls/
+            HBITMAP hBitmap = GetBitmap(hWnd);
+            if (hBitmap)
+            {			
+                h = CreateWindow(TEXT("STATIC"), TEXT(""),
+                    WS_CHILD | WS_VISIBLE | WS_BORDER | SS_BITMAP,
+                    p.x, p.y, 300, 300, hWnd, NULL, hInst, NULL);
+                SendMessage(h, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
+            }
+        }		
+        break;
     case WinType::Button:
         h = CreateWindow(TEXT("BUTTON"),
             TEXT("Button"),
@@ -199,6 +202,20 @@ HWND NewWindow(WinType type, POINT p, HWND hWnd)
             WS_CHILD | WS_VISIBLE | BS_CHECKBOX,
             p.x, p.y, 100, 30, hWnd, (HMENU)ID_MYCHECHBOX, hInst, NULL);
 
+        break;
+    case WinType::RadioButton:
+        CreateWindow(TEXT("button"), TEXT("Choose colour"), 
+            WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
+            p.x, p.y, 120, 110, hWnd, (HMENU) 0, hInst, NULL);
+        CreateWindow(L"button", L"Blue",
+            WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+            p.x + 10, p.y + 20, 100, 30, hWnd, (HMENU) ID_BLUE , hInst, NULL);
+        CreateWindow(L"button", L"Yellow",
+            WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+            p.x + 10, p.y + 45, 100, 30, hWnd, (HMENU) ID_YELLOW , hInst, NULL);
+        CreateWindow(L"button", L"Orange",
+            WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+            p.x + 10, p.y + 70, 100, 30, hWnd, (HMENU) ID_ORANGE , hInst, NULL);
         break;
     case WinType::Edit:
         h = CreateWindow(TEXT("EDIT"),
@@ -231,23 +248,23 @@ HWND NewWindow(WinType type, POINT p, HWND hWnd)
         // Add a list of strings to the combo box.
 
         SendMessage(
-                    h,                            // The handle of the combo box
-                    CB_ADDSTRING,                 // Tells the combo box to append this string to its list
-                    0,                            // Not used, ignored.
-                    (LPARAM) TEXT("Item A")       // The string to add.
+            h,                            // The handle of the combo box
+            CB_ADDSTRING,                 // Tells the combo box to append this string to its list
+            0,                            // Not used, ignored.
+            (LPARAM) TEXT("Item A")       // The string to add.
             );
 
         SendMessage(h, CB_ADDSTRING, 0, (LPARAM) TEXT("Item B"));
         SendMessage(h, CB_ADDSTRING, 0, (LPARAM) TEXT("Item C"));
         SendMessage(h, CB_ADDSTRING, 0, (LPARAM) TEXT("Item D"));
         SendMessage(h, CB_ADDSTRING, 0, (LPARAM) TEXT("Item E"));
-                
+
         // Select the default item to be "Item C".
         SendMessage(
-                    h,                            // The handle of the combo b,
-                    CB_SETCURSEL,                 // Tells the combo box to select the specified index
-                    2,                            // The index of the item to select (starting at zero)
-                    0                             // Not used, ignored.
+            h,                            // The handle of the combo b,
+            CB_SETCURSEL,                 // Tells the combo box to select the specified index
+            2,                            // The index of the item to select (starting at zero)
+            0                             // Not used, ignored.
             );
         break;
     default:
@@ -271,6 +288,7 @@ HWND hStat = NULL;
 HWND hStatBitmap = NULL;
 HWND hEdit = NULL;
 HWND hButton = NULL;
+HWND hRadio = NULL;
 HWND hCheckBox = NULL;
 HWND hCombo = NULL;
 bool is_creating = false;
@@ -302,6 +320,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 break;
             case WinType::CheckBox:
                 hCheckBox = NewWindow(WinType::CheckBox, p, hWnd);
+                break;
+            case WinType::RadioButton:
+                hRadio = NewWindow(WinType::RadioButton, p, hWnd);
                 break;
             case WinType::Edit:
                 hEdit = NewWindow(WinType::Edit, p, hWnd);
@@ -347,6 +368,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             type_of_creation = WinType::Button;
             //MessageBox(hWnd, TEXT("Create Button"), TEXT(""), 0);
             break;
+        case ID_RADIOBUTTON:
+            is_creating = true;     
+            type_of_creation = WinType::RadioButton;
+            //MessageBox(hWnd, TEXT("Create Button"), TEXT(""), 0);
+            break;
         case ID_CHECKBOX:
             is_creating = true;     
             type_of_creation = WinType::CheckBox;
@@ -364,6 +390,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     CheckDlgButton(hWnd, ID_MYCHECHBOX, BST_CHECKED);
                 }                
             }
+            break;
+        case ID_BLUE:
+             MessageBox(hWnd, TEXT("Blue"), TEXT(""), 0);
+            break;
+        case ID_YELLOW:
+            MessageBox(hWnd, TEXT("Yellow"), TEXT(""), 0);
+            break;
+        case ID_ORANGE:
+            MessageBox(hWnd, TEXT("Orange"), TEXT(""), 0);
             break;
         case ID_MYBUTTON:
             MessageBox(hWnd, TEXT("Button Pushed"), TEXT(""), 0);
