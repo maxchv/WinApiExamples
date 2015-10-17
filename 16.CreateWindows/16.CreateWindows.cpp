@@ -125,6 +125,9 @@ enum class WinType
 // https://en.wikibooks.org/wiki/Windows_Programming/User_Interface_Controls
 #define ID_MYBUTTON 1
 
+const TCHAR *items[] = { L"FreeBSD", L"OpenBSD",
+L"NetBSD", L"Solaris", L"Arch" };
+
 HWND NewWindow(WinType type, POINT p, HWND hWnd)
 {
     HWND h = NULL;
@@ -133,22 +136,30 @@ HWND NewWindow(WinType type, POINT p, HWND hWnd)
     case WinType::Static:
         h = CreateWindow(TEXT("STATIC"),
             TEXT("Static Winodw"),
+			// Static style
+			// https://msdn.microsoft.com/en-US/library/9h0ay857(v=vs.80).aspx
             WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT,
             p.x, p.y,100, 30, hWnd, NULL, hInst, NULL);
-        SendMessage(h ,                         /*HWND*/        /*Label*/
-            WM_SETTEXT,                 /*UINT*/        /*Message*/
-            NULL,                       /*WPARAM*/      /*Unused*/
-            (LPARAM) TEXT("Hello Static"));    /*LPARAM*/      /*Text*/
+		// Set text
+        SendMessage(h ,						/*HWND*/        /*Label*/
+            WM_SETTEXT,						/*UINT*/        /*Message*/
+            NULL,							/*WPARAM*/      /*Unused*/
+            (LPARAM) TEXT("Hello Static")); /*LPARAM*/      /*Text*/
+		// Set text
         break;
     case WinType::Button:
         h = CreateWindow(TEXT("BUTTON"),
             TEXT("Button"),
+			// Button styles
+			// https://msdn.microsoft.com/en-US/library/tf9hd91s(v=vs.80).aspx
             WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
             p.x, p.y,100, 30, hWnd, (HMENU)ID_MYBUTTON, hInst, NULL);
         break;
     case WinType::Edit:
         h = CreateWindow(TEXT("EDIT"),
             TEXT("Edit Winodw"),
+			// Edit style
+			// https://msdn.microsoft.com/en-US/library/6e36b89f(v=vs.80).aspx
             WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOVSCROLL | WS_VSCROLL | ES_MULTILINE,
             p.x, p.y,300, 250, hWnd, NULL, hInst, NULL);
         // Set the text.
@@ -162,8 +173,8 @@ HWND NewWindow(WinType type, POINT p, HWND hWnd)
         break;
     case WinType::ComboBox:
         h = CreateWindow(TEXT("COMBOBOX"), TEXT(""),
-            WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
-            p.x, p.y, 100, 30, hWnd, NULL, hInst, NULL);
+            WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_HASSTRINGS | CBS_AUTOHSCROLL,
+            p.x, p.y, 150, 150, hWnd, NULL, hInst, NULL);
         // Add a list of strings to the combo box.
 
         SendMessage(
@@ -173,18 +184,18 @@ HWND NewWindow(WinType type, POINT p, HWND hWnd)
                     (LPARAM) TEXT("Item A")             // The string to add.
             );
 
-       /* SendMessage(h, CB_ADDSTRING, 0, (LPARAM) TEXT("Item B"));
+        SendMessage(h, CB_ADDSTRING, 0, (LPARAM) TEXT("Item B"));
         SendMessage(h, CB_ADDSTRING, 0, (LPARAM) TEXT("Item C"));
         SendMessage(h, CB_ADDSTRING, 0, (LPARAM) TEXT("Item D"));
-        SendMessage(h, CB_ADDSTRING, 0, (LPARAM) TEXT("Item E"));*/
+        SendMessage(h, CB_ADDSTRING, 0, (LPARAM) TEXT("Item E"));
                 
         // Select the default item to be "Item C".
-        //SendMessage(
-        //            h,                            // The handle of the combo b,
-        //            CB_SETCURSEL,                 // Tells the combo box to select the specified index
-        //            2,                            // The index of the item to select (starting at zero)
-        //            0                             // Not used, ignored.
-        //    );
+        SendMessage(
+                    h,                            // The handle of the combo b,
+                    CB_SETCURSEL,                 // Tells the combo box to select the specified index
+                    4,                            // The index of the item to select (starting at zero)
+                    0                             // Not used, ignored.
+            );
         break;
     default:
         break;
@@ -216,7 +227,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     HDC hdc;
 
     switch (message)
-    {    
+    {    	
     case WM_LBUTTONDOWN:
         if(is_creating)
         {
