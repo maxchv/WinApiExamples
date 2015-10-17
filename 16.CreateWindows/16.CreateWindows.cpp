@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "16.CreateWindows.h"
-
+#include <commdlg.h>
 #define MAX_LOADSTRING 100
 
 // √лобальные переменные:
@@ -116,7 +116,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 enum class WinType
 {
     Static,
+	StaticBitmap,
     Button,
+	CheckBox,
     Edit,
     ComboBox
 };
@@ -125,8 +127,27 @@ enum class WinType
 // https://en.wikibooks.org/wiki/Windows_Programming/User_Interface_Controls
 #define ID_MYBUTTON 1
 
-const TCHAR *items[] = { L"FreeBSD", L"OpenBSD",
-L"NetBSD", L"Solaris", L"Arch" };
+HBITMAP GetBitmap(HWND hWndParent)
+{
+	HBITMAP hBitmap = NULL;
+	OPENFILENAME openfilename = { 0 };
+	TCHAR szFileName[_MAX_PATH] = TEXT("");
+	openfilename.lStructSize = sizeof(OPENFILENAME);
+	openfilename.hwndOwner = hWndParent;
+	openfilename.lpstrFile = szFileName;
+	openfilename.lpstrFilter = TEXT("Bitmap images (*.bmp)\0*.bmp\0\0");
+	openfilename.lpstrDefExt = TEXT("bmp");
+	openfilename.nMaxFile = _MAX_FNAME;
+	openfilename.lpstrFileTitle = TEXT("”кажите файл картинки");
+	openfilename.Flags = OFN_FILEMUSTEXIST;
+	if (GetOpenFileName(&openfilename))
+	{	
+		hBitmap = (HBITMAP) LoadImage(NULL, szFileName, IMAGE_BITMAP,
+					0, 0, LR_LOADFROMFILE);
+	}
+	
+	return hBitmap;
+}
 
 HWND NewWindow(WinType type, POINT p, HWND hWnd)
 {
@@ -146,7 +167,21 @@ HWND NewWindow(WinType type, POINT p, HWND hWnd)
             NULL,							/*WPARAM*/      /*Unused*/
             (LPARAM) TEXT("Hello Static")); /*LPARAM*/      /*Text*/
 		// Set text
+		SetWindowText(h, TEXT("Static text"));
         break;
+	case WinType::StaticBitmap:
+	{
+		// http://zetcode.com/gui/winapi/controls/
+		HBITMAP hBitmap = GetBitmap(hWnd);
+		if (hBitmap)
+		{			
+			h = CreateWindow(TEXT("STATIC"), TEXT(""),
+				WS_CHILD | WS_VISIBLE | WS_BORDER | SS_BITMAP,
+				p.x, p.y, 300, 300, hWnd, NULL, hInst, NULL);
+			SendMessage(h, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
+		}
+	}		
+		break;
     case WinType::Button:
         h = CreateWindow(TEXT("BUTTON"),
             TEXT("Button"),
@@ -155,6 +190,17 @@ HWND NewWindow(WinType type, POINT p, HWND hWnd)
             WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
             p.x, p.y,100, 30, hWnd, (HMENU)ID_MYBUTTON, hInst, NULL);
         break;
+	case WinType::CheckBox:
+	{
+		h = CreateWindow(TEXT("BUTTON"), TEXT("CheckBox"),
+			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_CHECKBOX,
+			p.x, p.y, 100, 30, hWnd, (HMENU)3, hInst, NULL);
+		// Set check
+		CheckDlgButton(h, 3, BST_CHECKED);
+		// Get is checked
+		bool checked = IsDlgButtonChecked(h, 3);
+	}
+		break;
     case WinType::Edit:
         h = CreateWindow(TEXT("EDIT"),
             TEXT("Edit Winodw"),
@@ -215,9 +261,11 @@ HWND NewWindow(WinType type, POINT p, HWND hWnd)
 //
 
 HWND hStat = NULL;
+HWND hStatBitmap = NULL;
 HWND hEdit = NULL;
 HWND hButton = NULL;
 HWND hCombo = NULL;
+HWND hCheckBox = NULL;
 bool is_creating = false;
 WinType type_of_creation;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -239,9 +287,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case WinType::Static:
                 hStat = NewWindow(WinType::Static, p, hWnd);
                 break;
+			case WinType::StaticBitmap:
+				hStatBitmap = NewWindow(WinType::StaticBitmap, p, hWnd);
+				break;
             case WinType::Button:
                 hButton = NewWindow(WinType::Button, p, hWnd);
                 break;
+			case WinType::CheckBox:
+				hCheckBox = NewWindow(WinType::CheckBox, p, hWnd);
+				break;
             case WinType::Edit:
                 hEdit = NewWindow(WinType::Edit, p, hWnd);
                 break;
@@ -272,11 +326,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             is_creating = true;     
             type_of_creation = WinType::Static;
             break;
+		case ID_STATICBITMAP:
+			is_creating = true;
+			type_of_creation = WinType::StaticBitmap;
+			break;
         case ID_COMBOBOX:
             //MessageBox(hWnd, TEXT("Create ComboBox"), TEXT(""), 0);
             is_creating = true;     
             type_of_creation = WinType::ComboBox;
             break;
+		case ID_CHECKBX:
+			is_creating = true;
+			type_of_creation = WinType::CheckBox;
+			break;
         case ID_BUTTON:
             is_creating = true;     
             type_of_creation = WinType::Button;
