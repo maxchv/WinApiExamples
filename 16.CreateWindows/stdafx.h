@@ -14,8 +14,7 @@
 // Файлы заголовков C RunTime
 #include <stdlib.h>
 #include <malloc.h>
-#include <memory.h>
+#include <memory>
 #include <tchar.h>
-
-
+#include <commdlg.h>
 // TODO: Установите здесь ссылки на дополнительные заголовки, требующиеся для программы
